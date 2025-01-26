@@ -106,33 +106,69 @@ async function handleCreateOrder(req, res) {
     }
 }
 
+// async function handleVerifyOrder(req, res) {
+//     try {
+//         const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
+//         if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
+//             return res.status(400).json({
+//                 success: false,
+//                 message: "Provide all the required fields"
+//             })
+//         }
+
+//         const body = razorpay_order_id + '|' + razorpay_payment_id;
+
+//         const expectedSignature = crypto
+//             .createHmac('sha256', process.env.RAZOR_PAY_SECRET)
+//             .update(body.toString())
+//             .digest('hex');
+
+//         if (expectedSignature === razorpay_signature) {
+//             res.status(200).json({ success: true, message: "Payment Verified" });
+//         } else {
+//             res.status(400).json({ success: false, message: "Payment Failed" });
+//         }
+//     } catch (error) {
+//         return res.status(500).json({
+//             success: false,
+//             message: error.message
+//         })
+//     }
+// }
+
 async function handleVerifyOrder(req, res) {
     try {
-        const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
-        if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
+        const { razorpay_subscription_id, razorpay_payment_id, razorpay_signature } = req.body;
+
+        if (!razorpay_subscription_id || !razorpay_payment_id || !razorpay_signature) {
             return res.status(400).json({
                 success: false,
-                message: "Provide all the required fields"
-            })
+                message: "Provide all the required fields: subscription_id, payment_id, and signature."
+            });
         }
 
-        const body = razorpay_order_id + '|' + razorpay_payment_id;
+        // Create a body string for verification
+        const body = razorpay_subscription_id + "|" + razorpay_payment_id;
 
+        // Generate the expected signature
         const expectedSignature = crypto
             .createHmac('sha256', process.env.RAZOR_PAY_SECRET)
             .update(body.toString())
             .digest('hex');
 
+        // Compare the expected signature with the received signature
         if (expectedSignature === razorpay_signature) {
-            res.status(200).json({ success: true, message: "Payment Verified" });
+            res.status(200).json({ success: true, message: "Subscription Payment Verified" });
         } else {
-            res.status(400).json({ success: false, message: "Payment Failed" });
+            res.status(400).json({ success: false, message: "Subscription Payment Verification Failed" });
         }
     } catch (error) {
+        console.error("Error verifying subscription:", error);
         return res.status(500).json({
             success: false,
-            message: error.message
-        })
+            message: "An error occurred during subscription verification. Please try again.",
+            error: error.message
+        });
     }
 }
 
