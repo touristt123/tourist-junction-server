@@ -148,7 +148,7 @@ async function handleVerifyOrder(req, res) {
         }
 
         // Create a body string for verification
-        const body = razorpay_subscription_id + "|" + razorpay_payment_id;
+        const body =  razorpay_payment_id + "|" + razorpay_subscription_id
 
         // Generate the expected signature
         const expectedSignature = crypto
