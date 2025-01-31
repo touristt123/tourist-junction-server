@@ -25,12 +25,16 @@ const subscriptionSchema = mongoose.Schema({
     },
     yearlyRenewals: {
         type: Number,
-        default: 0
+        default: 0  
     },
     isValid: {
         type: Boolean,
         default: true
-    }
+    },
+    razorpaySubscriptionId: { 
+        type: String,
+        required: true
+    },
 });
 
 const subscription = mongoose.model('subscription', subscriptionSchema);

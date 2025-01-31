@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router()
-const { handleCreateSubscription, handleRenewSubcription, handleVerifyOrder, handleCreateOrder, handleCreateRazorPaySubscription } = require("../controllers/subscription");
+const { handleCreateSubscription, handleRenewSubcription, handleVerifyOrder, handleCreateOrder, handleCreateRazorPaySubscription, handleRenew, handleFailure } = require("../controllers/subscription");
 const { handleGetUserByAuthToken } = require("../middlewares/auth");
 
 
@@ -9,5 +9,9 @@ router.patch("/:subscriptionId", handleGetUserByAuthToken, handleRenewSubcriptio
 router.post('/verify', handleGetUserByAuthToken, handleVerifyOrder);
 router.post("/createOrder", handleGetUserByAuthToken, handleCreateOrder)
 router.post("/createSubscription", handleGetUserByAuthToken, handleCreateRazorPaySubscription)
+
+app.post("/webhook-renew", handleGetUserByAuthToken, handleRenew);
+app.post("/webhook-failure", handleGetUserByAuthToken, handleFailure);
+
 
 module.exports = router
