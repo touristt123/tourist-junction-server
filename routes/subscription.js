@@ -10,8 +10,8 @@ router.post('/verify', handleGetUserByAuthToken, handleVerifyOrder);
 router.post("/createOrder", handleGetUserByAuthToken, handleCreateOrder)
 router.post("/createSubscription", handleGetUserByAuthToken, handleCreateRazorPaySubscription)
 
-app.post("/webhook-renew", handleGetUserByAuthToken, handleRenew);
-app.post("/webhook-failure", handleGetUserByAuthToken, handleFailure);
+router.post("/webhook-renew", handleGetUserByAuthToken, handleRenew);
+router.post("/webhook-failure", handleGetUserByAuthToken, handleFailure);
 
 
 module.exports = router
