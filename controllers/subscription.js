@@ -23,9 +23,9 @@ async function handleCreateSubscription(req, res) {
             });
         }
 
-        // const startDate = new Date();
-        // const endDate = new Date(startDate);
-        // endDate.setSeconds(endDate.getSeconds() + subscriptionPlan.duration);
+        const startDate = new Date();
+        const endDate = new Date(startDate);
+        endDate.setSeconds(endDate.getSeconds() + subscriptionPlan.duration);
 
         const foundAgency = await agency.findById(req.data._id)
         if (!foundAgency) {
@@ -38,8 +38,8 @@ async function handleCreateSubscription(req, res) {
         const createdSubscription = await subscription.create({
             agency: foundAgency,
             plan,
-            // startDate,
-            // endDate,
+            startDate,
+            endDate,
             // monthlyRenewals: plan === 'MONTHLY' ? 1 : 0,
             // yearlyRenewals: plan === 'YEARLY' ? 1 : 0,
             isValid: true,
@@ -51,7 +51,7 @@ async function handleCreateSubscription(req, res) {
                 message: "Could not create subscription"
             })
         }
-        const updatedAgency = await agency.findByIdAndUpdate(req.data._id, { isSubsciptionValid: true, subscription: createdSubscription }, { new: true })
+        await agency.findByIdAndUpdate(req.data._id, { isSubsciptionValid: true, subscription: createdSubscription }, { new: true })
 
         return res.status(201).json({
             success: true,
@@ -65,43 +65,43 @@ async function handleCreateSubscription(req, res) {
     }
 }
 
-async function handleCreateOrder(req, res) {
-    try {
-        const { amount, currency, receipt, notes } = req.body;
+// async function handleCreateOrder(req, res) {
+//     try {
+//         const { amount, currency, receipt, notes } = req.body;
 
-        if (!amount || !currency || !receipt) {
-            return res.status(400).json({
-                success: false,
-                message: "Provide all the required fields"
-            })
-        }
+//         if (!amount || !currency || !receipt) {
+//             return res.status(400).json({
+//                 success: false,
+//                 message: "Provide all the required fields"
+//             })
+//         }
 
-        const razorpayOrderOptions = {
-            amount: amount * 100,
-            currency,
-            receipt,
-            notes
-        };
-        const createdOrder = await razorpay.orders.create(razorpayOrderOptions);
+//         const razorpayOrderOptions = {
+//             amount: amount * 100,
+//             currency,
+//             receipt,
+//             notes
+//         };
+//         const createdOrder = await razorpay.orders.create(razorpayOrderOptions);
 
-        if (!createdOrder) {
-            return res.status(400).json({
-                success: false,
-                message: "Could not create razor pay order"
-            })
-        }
-        return res.status(201).json({
-            success: true,
-            data: createdOrder
-        })
+//         if (!createdOrder) {
+//             return res.status(400).json({
+//                 success: false,
+//                 message: "Could not create razor pay order"
+//             })
+//         }
+//         return res.status(201).json({
+//             success: true,
+//             data: createdOrder
+//         })
 
-    } catch (error) {
-        return res.status(500).json({
-            success: false,
-            message: error
-        })
-    }
-}
+//     } catch (error) {
+//         return res.status(500).json({
+//             success: false,
+//             message: error
+//         })
+//     }
+// }
 
 // async function handleVerifyOrder(req, res) {
 //     try {
@@ -133,7 +133,7 @@ async function handleCreateOrder(req, res) {
 //     }
 // }
 
-async function handleVerifyOrder(req, res) {
+async function handleVerifySubscription(req, res) {
     try {
         const { razorpay_subscription_id, razorpay_payment_id, razorpay_signature } = req.body;
 
@@ -169,64 +169,64 @@ async function handleVerifyOrder(req, res) {
     }
 }
 
-async function handleRenewSubcription(req, res) {
-    try {
-        const { plan } = req.body;
-        const { subscriptionId } = req.params
+// async function handleRenewSubcription(req, res) {
+//     try {
+//         const { plan } = req.body;
+//         const { subscriptionId } = req.params
 
-        const subscriptionPlan = subscriptionPlans[plan];
-        if (!subscriptionPlan) {
-            return res.status(400).json({
-                success: false,
-                message: "Provide a Invalid plan"
-            });
-        }
+//         const subscriptionPlan = subscriptionPlans[plan];
+//         if (!subscriptionPlan) {
+//             return res.status(400).json({
+//                 success: false,
+//                 message: "Provide a Invalid plan"
+//             });
+//         }
 
-        const foundSubscription = await subscription.findById(subscriptionId);
-        if (!foundSubscription) {
-            return res.status(400).json({
-                success: false,
-                message: "Provide a valid subscription ID"
-            });
-        }
-        const foundAgency = await agency.findById(req.data._id)
-        if (foundAgency.subscription.toString() !== foundSubscription._id.toString()) {
-            return res.status(400).json({
-                success: false,
-                message: "Provide a valid subscription id"
-            })
-        }
-
-
-        // Extend subscription end date based on new plan
-        const newEndDate = new Date(foundSubscription.endDate.getTime() + subscriptionPlan.duration * 1000);
-        foundSubscription.endDate = newEndDate;
-
-        // Track renewals for each plan type
-
-        foundSubscription.monthlyRenewals = (plan === 'MONTHLY') ? foundSubscription.monthlyRenewals + 1 : foundSubscription.monthlyRenewals
-        foundSubscription.yearlyRenewals = (plan === 'YEARLY') ? foundSubscription.yearlyRenewals + 1 : foundSubscription.yearlyRenewals
+//         const foundSubscription = await subscription.findById(subscriptionId);
+//         if (!foundSubscription) {
+//             return res.status(400).json({
+//                 success: false,
+//                 message: "Provide a valid subscription ID"
+//             });
+//         }
+//         const foundAgency = await agency.findById(req.data._id)
+//         if (foundAgency.subscription.toString() !== foundSubscription._id.toString()) {
+//             return res.status(400).json({
+//                 success: false,
+//                 message: "Provide a valid subscription id"
+//             })
+//         }
 
 
-        // Update the plan to the new plan
-        foundSubscription.plan = plan;
-        foundAgency.isSubsciptionValid = true
+        
+//         const newEndDate = new Date(foundSubscription.endDate.getTime() + subscriptionPlan.duration * 1000);
+//         foundSubscription.endDate = newEndDate;
 
-        await foundAgency.save();
-        await foundSubscription.save();
+//         // Track renewals for each plan type
+
+//         // foundSubscription.monthlyRenewals = (plan === 'MONTHLY') ? foundSubscription.monthlyRenewals + 1 : foundSubscription.monthlyRenewals
+//         // foundSubscription.yearlyRenewals = (plan === 'YEARLY') ? foundSubscription.yearlyRenewals + 1 : foundSubscription.yearlyRenewals
 
 
-        res.status(200).json({
-            success: true,
-            data: foundSubscription
-        });
-    } catch (error) {
-        return res.status(500).json({
-            success: false,
-            message: error.message
-        })
-    }
-}
+//         // Update the plan to the new plan
+//         foundSubscription.plan = plan;
+//         foundAgency.isSubsciptionValid = true
+
+//         await foundAgency.save();
+//         await foundSubscription.save();
+
+
+//         res.status(200).json({
+//             success: true,
+//             data: foundSubscription
+//         });
+//     } catch (error) {
+//         return res.status(500).json({
+//             success: false,
+//             message: error.message
+//         })
+//     }
+// }
 
 // async function handleCreateRazorPaySubscription(req, res) {
 //     try {
@@ -261,19 +261,20 @@ async function handleCreateRazorPaySubscription(req, res) {
     try {
         const { plan } = req.body;
         const foundAgency = await agency.findById(req.data._id);
+        const subscriptionPlan = subscriptionPlans[plan]
 
         if (!foundAgency) {
             return res.status(400).json({ success: false, message: "Agency not found" });
         }
 
         // Define Razorpay plan ID based on selected plan
-        const razorpayPlanId = plan === 'MONTHLY' ? process.env.RAZORPAY_MONTHLY_PLAN_ID : process.env.RAZORPAY_YEARLY_PLAN_ID;
+        // const razorpayPlanId = plan === 'MONTHLY' ? process.env.RAZORPAY_MONTHLY_PLAN_ID : process.env.RAZORPAY_YEARLY_PLAN_ID;
 
         // Create a Razorpay subscription
         const razorpaySubscription = await razorpay.subscriptions.create({
-            plan_id: razorpayPlanId,
+            plan_id: subscriptionPlan.id,
             customer_notify: 1,
-            total_count: plan === 'MONTHLY' ? 12 : 1,  // Auto-renew for 12 months if monthly, else 1 year
+            total_count: 12,  // Auto-renew for 12 months if monthly, else 1 year
         });
 
         if (!razorpaySubscription) {
@@ -285,7 +286,7 @@ async function handleCreateRazorPaySubscription(req, res) {
             agency: foundAgency,
             plan,
             startDate: new Date(),
-            endDate: new Date(Date.now() + (plan === 'MONTHLY' ? 30 * 24 * 60 * 60 * 1000 : 365 * 24 * 60 * 60 * 1000)), // Adjust expiry accordingly
+            endDate: new Date(Date.now() + subscriptionPlan.duration * 1000),
             razorpaySubscriptionId: razorpaySubscription.id,
             isValid: true
         });
@@ -303,16 +304,17 @@ async function handleCreateRazorPaySubscription(req, res) {
 async function handleRenew(req, res) {
     try {
         const event = req.body;
-
+        
         if (event.event === "subscription.charged") {
             const { subscription_id } = event.payload.subscription.entity;
-
+            
             // Fetch the subscription based on Razorpay subscription_id
             const foundSubscription = await subscription.findOne({ razorpaySubscriptionId: subscription_id });
-
+            
             if (foundSubscription) {
+                const subscriptionPlan = subscriptionPlans[foundSubscription.plan];
                 foundSubscription.isActive = true;
-                foundSubscription.expiryDate = new Date(Date.now() + foundSubscription.duration * 1000); // Extend expiry
+                foundSubscription.expiryDate = new Date(Date.now() + subscriptionPlan.duration * 1000); // Extend expiry
                 await foundSubscription.save();
 
                 // Optionally, update the user's `isSubscriptionValid` field
@@ -354,9 +356,9 @@ async function handleFailure(req, res) {
 
 module.exports = {
     handleCreateSubscription,
-    handleRenewSubcription,
-    handleVerifyOrder,
-    handleCreateOrder,
+    // handleRenewSubcription,
+    handleVerifySubscription,
+    // handleCreateOrder,
     handleCreateRazorPaySubscription,
     handleRenew,
     handleFailure

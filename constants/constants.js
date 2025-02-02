@@ -22,15 +22,23 @@ const ratingMessages = [
 ]
 
 const subscriptionPlans = {
-    MONTHLY: {
+    BASIC: {
         duration: 2592000, // seconds
-        price: 499, // price in your currency
-        id: process.env.RAZOR_PAY_MONTHLY_PLAN_ID
+        price: 499, // price in your INR
+        noOfVehicles: 4,
+        id: process.env.RAZORPAY_BASIC_PLAN_ID
     },
-    YEARLY: {
-        duration: 31536000, // seconds
-        price: 1499, // price in your currency
-        id: process.env.RAZOR_PAY_YEARLY_PLAN_ID
+    STANDARD: {
+        duration: 2592000, // seconds
+        price: 999, // price in your INR
+        noOfVehicles: 8,
+        id: process.env.RAZORPAY_STANDARD_PLAN_ID
+    },
+    PREMIUM: {
+        duration: 2592000, // seconds
+        price: 1999, // price in your INR
+        noOfVehicles: 16,
+        id: process.env.RAZORPAY_PREMIUM_PLAN_ID
     }
 };
 
