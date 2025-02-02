@@ -198,7 +198,7 @@ async function handleVerifySubscription(req, res) {
 //         }
 
 
-        
+
 //         const newEndDate = new Date(foundSubscription.endDate.getTime() + subscriptionPlan.duration * 1000);
 //         foundSubscription.endDate = newEndDate;
 
@@ -277,6 +277,9 @@ async function handleCreateRazorPaySubscription(req, res) {
             total_count: 12,  // Auto-renew for 12 months if monthly, else 1 year
         });
 
+        console.log("Razorpay Subscription Response:", razorpaySubscription);
+
+
         if (!razorpaySubscription) {
             return res.status(400).json({ success: false, message: "Could not create Razorpay subscription" });
         }
@@ -296,6 +299,7 @@ async function handleCreateRazorPaySubscription(req, res) {
 
         return res.status(201).json({ success: true, data: razorpaySubscription });
     } catch (error) {
+        console.log("Error in handleCreateRazorPaySubscription:", error);
         return res.status(500).json({ success: false, message: error.message });
     }
 }
@@ -304,13 +308,13 @@ async function handleCreateRazorPaySubscription(req, res) {
 async function handleRenew(req, res) {
     try {
         const event = req.body;
-        
+
         if (event.event === "subscription.charged") {
             const { subscription_id } = event.payload.subscription.entity;
-            
+
             // Fetch the subscription based on Razorpay subscription_id
             const foundSubscription = await subscription.findOne({ razorpaySubscriptionId: subscription_id });
-            
+
             if (foundSubscription) {
                 const subscriptionPlan = subscriptionPlans[foundSubscription.plan];
                 foundSubscription.isActive = true;
