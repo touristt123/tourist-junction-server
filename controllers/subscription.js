@@ -260,6 +260,9 @@ async function handleVerifySubscription(req, res) {
 async function handleCreateRazorPaySubscription(req, res) {
     try {
         const { plan } = req.body;
+        if(!plan) {
+            return res.status(400).json({ success: false, message: "Provide a valid plan type" });
+        }
         const foundAgency = await agency.findById(req.data._id);
         const subscriptionPlan = subscriptionPlans[plan]
 
@@ -270,20 +273,21 @@ async function handleCreateRazorPaySubscription(req, res) {
         // Define Razorpay plan ID based on selected plan
         // const razorpayPlanId = plan === 'MONTHLY' ? process.env.RAZORPAY_MONTHLY_PLAN_ID : process.env.RAZORPAY_YEARLY_PLAN_ID;
 
+        
         // Create a Razorpay subscription
         const razorpaySubscription = await razorpay.subscriptions.create({
             plan_id: subscriptionPlan.id,
             customer_notify: 1,
             total_count: 12,  // Auto-renew for 12 months if monthly, else 1 year
         });
-
+        
         console.log("Razorpay Subscription Response:", razorpaySubscription);
-
-
+        
+        
         if (!razorpaySubscription) {
             return res.status(400).json({ success: false, message: "Could not create Razorpay subscription" });
         }
-
+        
         // Store subscription in DB
         const createdSubscription = await subscription.create({
             agency: foundAgency,
@@ -293,10 +297,11 @@ async function handleCreateRazorPaySubscription(req, res) {
             razorpaySubscriptionId: razorpaySubscription.id,
             isValid: true
         });
-
+        
         // Update agency model with the subscription
         await agency.findByIdAndUpdate(req.data._id, { isSubsciptionValid: true, subscription: createdSubscription._id });
-
+        
+        // return res.status(200).json({ success: true, data: subscriptionPlan });
         return res.status(201).json({ success: true, data: razorpaySubscription });
     } catch (error) {
         console.log("Error in handleCreateRazorPaySubscription:", error);
