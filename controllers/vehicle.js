@@ -45,7 +45,7 @@ async function handleCreateVehicle(req, res) {
         }
 
         const createdVehicle = await vehicle.create({
-            name, number, seatingCapacity, model, bodyType, chassisBrand, location, contactNumber, photos, isAC, isSleeper, isForRent, isForSell, sellDescription, type, noOfTyres, vehicleWeightInKGS, isSeatPushBack, isLuggageSpace, curtain, amenities
+            name, number, seatingCapacity, model, bodyType, chassisBrand, location, contactNumber, photos, isAC, isSleeper, isForRent, isForSell, sellDescription, type, noOfTyres, vehicleWeightInKGS, isSeatPushBack, isLuggageSpace, curtain, amenities, user: req.data._id
         })
 
         const updatedUser = await user.findByIdAndUpdate(req.data._id, { $push: { vehicles: createdVehicle } }, { new: true })
@@ -139,6 +139,7 @@ async function handleGetAllVehicles(req, res) {
         })
     }
 }
+
 async function handleGetAllVehiclesImages(req, res) {
     try {
         if (req.data.role === "AGENCY" || "MANAGER" || "OFFICE-BOY") {
@@ -183,7 +184,7 @@ async function handleGetAllVehiclesImages(req, res) {
 async function handleGetRentVehicles(req, res) {
     try {
 
-        const foundRentVehicles = await vehicle.find({ isForRent: true }).sort({ createdAt: -1 })
+        const foundRentVehicles = await vehicle.find({ isForRent: true }).sort({ createdAt: -1 }).populate("user")
         if (!foundRentVehicles) {
             return res.status(400).json({
                 success: false,
@@ -205,7 +206,7 @@ async function handleGetRentVehicles(req, res) {
 
 async function handleGetSellVehicles(req, res) {
     try {
-        const foundSellVehicles = await vehicle.find({ isForSell: true }).sort({ createdAt: -1 })
+        const foundSellVehicles = await vehicle.find({ isForSell: true }).sort({ createdAt: -1 }).populate("user")
         if (!foundSellVehicles) {
             return res.status(400).json({
                 success: false,

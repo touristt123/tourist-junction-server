@@ -2,6 +2,10 @@ const mongoose = require("mongoose")
 
 const vehicleSchema = mongoose.Schema({
 
+    user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "user",
+    },
     number: {
         type: String,
         required: true,
