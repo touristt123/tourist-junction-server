@@ -9,7 +9,8 @@ const { sendSms } = require("../utils/sms")
 
 async function handleCreatePackageBooking(req, res) {
     try {
-        const { vehicleId, otherVehicleId, customerName, customerNo, officeAddress, mobileNumber, alternateNumber, kmStarting, perKmRateInINR, advanceAmountInINR, remainingAmountInINR, advancePlace, departurePlace, destinationPlace, departureTime, departureDate, returnTime, returnDate, tollInINR, otherStateTaxInINR, note, pickupPoint } = req.body
+        const { vehicleId, otherVehicleId, customerName, customerNo, officeAddress, mobileNumber
+            , kmStarting, perKmRateInINR, advanceAmountInINR, remainingAmountInINR, advancePlace, departurePlace, destinationPlace, departureTime, departureDate, returnTime, returnDate, tollInINR, otherStateTaxInINR, note, pickupPoint } = req.body
         // console.log({ vehicleId, otherVehicleId, customerName, mobileNumber, alternateNumber, kmStarting, perKmRateInINR, advanceAmountInINR, remainingAmountInINR, advancePlace, departurePlace, destinationPlace, departureTime, departureDate, returnTime, returnDate, tollInINR, otherStateTaxInINR, note });
         if (!vehicleId || !otherVehicleId || !customerName || !customerNo || !officeAddress || !mobileNumber || !kmStarting || !perKmRateInINR || !advanceAmountInINR || !remainingAmountInINR || !advancePlace || !departurePlace || !destinationPlace || !departureTime || !returnTime || !tollInINR || !otherStateTaxInINR || !departureDate || !returnDate || !pickupPoint) {
             return res.status(400).json({
@@ -46,7 +47,7 @@ async function handleCreatePackageBooking(req, res) {
 
         if (req.data.role === "MANAGER" || req.data.role === "OFFICE-BOY") {
             const foundEmployee = await employee.findById(req.data.employeeId)
-            const createdPackageBooking = await packageBooking.create({ vehicle: foundVehicle, otherVehicle: foundOtherVehicle, officeAddress, customerName, customerNo, mobileNumber, alternateNumber, kmStarting, perKmRateInINR, advanceAmountInINR, remainingAmountInINR, advancePlace, departurePlace, destinationPlace, departureTime, departureDate, returnTime, returnDate, tollInINR, otherStateTaxInINR, status: "CREATED", createdBy: foundEmployee.name, note, isNotified: false, isAgencyNotified: false, isDriverNotified: false, pickupPoint })
+            const createdPackageBooking = await packageBooking.create({ vehicle: foundVehicle, otherVehicle: foundOtherVehicle, officeAddress, customerName, customerNo, mobileNumber, kmStarting, perKmRateInINR, advanceAmountInINR, remainingAmountInINR, advancePlace, departurePlace, destinationPlace, departureTime, departureDate, returnTime, returnDate, tollInINR, otherStateTaxInINR, status: "CREATED", createdBy: foundEmployee.name, note, isNotified: false, isAgencyNotified: false, isDriverNotified: false, pickupPoint })
             await user.findByIdAndUpdate(req.data._id, { $push: { packageBookings: createdPackageBooking } }, { new: true })
             return res.status(201).json({
                 success: true,
@@ -55,7 +56,7 @@ async function handleCreatePackageBooking(req, res) {
         }
         const foundAgency = await user.findById(req.data._id)
         const bookingsCount = await packageBooking.countDocuments();
-        const createdPackageBooking = await packageBooking.create({ vehicle: foundVehicle, otherVehicle: foundOtherVehicle, agencyName: foundAgency.companyName, agencyNo: foundAgency.mobileNumber, officeAddress, customerName, customerNo, mobileNumber, alternateNumber, kmStarting, perKmRateInINR, advanceAmountInINR, remainingAmountInINR, advancePlace, departurePlace, destinationPlace, departureTime, departureDate, returnTime, returnDate, tollInINR, otherStateTaxInINR, status: "CREATED", createdBy: foundAgency.userName, invoiceId : bookingsCount + 101, isNotified : false, isAgencyNotified: false, isDriverNotified: false, note, pickupPoint })
+        const createdPackageBooking = await packageBooking.create({ vehicle: foundVehicle, otherVehicle: foundOtherVehicle, agencyName: foundAgency.companyName, agencyNo: foundAgency.mobileNumber, officeAddress, customerName, customerNo, mobileNumber, kmStarting, perKmRateInINR, advanceAmountInINR, remainingAmountInINR, advancePlace, departurePlace, destinationPlace, departureTime, departureDate, returnTime, returnDate, tollInINR, otherStateTaxInINR, status: "CREATED", createdBy: foundAgency.userName, invoiceId : bookingsCount + 101, isNotified : false, isAgencyNotified: false, isDriverNotified: false, note, pickupPoint })
         await user.findByIdAndUpdate(req.data._id, { $push: { packageBookings: createdPackageBooking } }, { new: true })
 
         const response = await sendSms(createdPackageBooking.mobileNumber, `Dear ${createdPackageBooking.customerName}, You have successfully booked a vehicle with ${foundAgency.companyName}. Your trip dates are from ${formatDate(createdPackageBooking.departureDate)} to ${formatDate(createdPackageBooking.returnDate)} For any information, please contact ${foundAgency.companyName}. Best regards, TOURIST JUNCTION PRIVATE LIMITED`, process.env.DLT_PACKAGE_BOOKING_SUCCESS_TEMPLATE_ID)
@@ -155,9 +156,9 @@ async function handleUpdatePackageBooking(req, res) {
                 message: "Provide the ID of booking to update"
             })
         }
-        const { vehicleId, otherVehicleId, customerName, customerNo, mobileNumber, officeAddress, alternateNumber, kmStarting, perKmRateInINR, advanceAmountInINR, remainingAmountInINR, advancePlace, departurePlace, destinationPlace, departureTime, departureDate, returnTime, returnDate, tollInINR, otherStateTaxInINR, note } = req.body
+        const { vehicleId, otherVehicleId, customerName, customerNo, mobileNumber, officeAddress, kmStarting, perKmRateInINR, advanceAmountInINR, remainingAmountInINR, advancePlace, departurePlace, destinationPlace, departureTime, departureDate, returnTime, returnDate, tollInINR, otherStateTaxInINR, note } = req.body
         // console.log({ vehicleId, otherVehicleId, customerName, mobileNumber, alternateNumber, kmStarting, perKmRateInINR, advanceAmountInINR, remainingAmountInINR, advancePlace, departurePlace, destinationPlace, departureTime, departureDate, returnTime, returnDate, tollInINR, otherStateTaxInINR, note });
-        if (!vehicleId || !otherVehicleId || !customerName || !officeAddress || !mobileNumber || !alternateNumber || !kmStarting || !perKmRateInINR || !advanceAmountInINR || !remainingAmountInINR || !advancePlace || !departurePlace || !destinationPlace || !departureTime || !returnTime || !tollInINR || !otherStateTaxInINR || !note) {
+        if (!vehicleId || !otherVehicleId || !customerName || !officeAddress || !mobileNumber || !kmStarting || !perKmRateInINR || !advanceAmountInINR || !remainingAmountInINR || !advancePlace || !departurePlace || !destinationPlace || !departureTime || !returnTime || !tollInINR || !otherStateTaxInINR || !note) {
             return res.status(400).json({
                 success: false,
                 message: "Provide all the fields"
@@ -169,12 +170,12 @@ async function handleUpdatePackageBooking(req, res) {
                 message: "Enter a valid mobile number"
             })
         }
-        if (alternateNumber.length < 10 || alternateNumber.length > 12) {
-            return res.status(400).json({
-                success: false,
-                message: "Enter a valid alternate number"
-            })
-        }
+        // if (alternateNumber.length < 10 || alternateNumber.length > 12) {
+        //     return res.status(400).json({
+        //         success: false,
+        //         message: "Enter a valid alternate number"
+        //     })
+        // }
         const foundVehicle = await vehicle.findById(vehicleId)
         const foundOtherVehicle = await vehicle.findById(otherVehicleId)
         if (!foundVehicle) {
@@ -189,7 +190,7 @@ async function handleUpdatePackageBooking(req, res) {
                 message: "Provide a valid other vehicle ID"
             })
         }
-        const updatedPackageBooking = await packageBooking.findByIdAndUpdate(bookingId, { vehicle: foundVehicle, otherVehicle: foundOtherVehicle, customerName, customerNo, officeAddress, mobileNumber, alternateNumber, kmStarting, perKmRateInINR, advanceAmountInINR, remainingAmountInINR, advancePlace, departurePlace, destinationPlace, departureTime, departureDate, returnTime, returnDate, tollInINR, otherStateTaxInINR }, { new: true })
+        const updatedPackageBooking = await packageBooking.findByIdAndUpdate(bookingId, { vehicle: foundVehicle, otherVehicle: foundOtherVehicle, customerName, customerNo, officeAddress, mobileNumber, kmStarting, perKmRateInINR, advanceAmountInINR, remainingAmountInINR, advancePlace, departurePlace, destinationPlace, departureTime, departureDate, returnTime, returnDate, tollInINR, otherStateTaxInINR }, { new: true })
 
         return res.status(200).json({
             success: true,
