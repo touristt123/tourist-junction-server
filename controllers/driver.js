@@ -23,11 +23,10 @@ async function handleCreateDriver(req, res) {
             })
         }
         const alreadyEmployeeWithMobileNumber = await employee.findOne({ mobileNumber })
-        const alreadyDriverWithMobileNumber = await driver.findOne({ mobileNumber })
-        if (alreadyEmployeeWithMobileNumber || alreadyDriverWithMobileNumber) {
+        if (alreadyEmployeeWithMobileNumber) {
             return res.status(400).json({
                 success: false,
-                message: "Driver with this phone number already exists"
+                message: "Employee with this phone number already exists"
             })
         }
         if (password.length < 5) {
@@ -50,9 +49,11 @@ async function handleCreateDriver(req, res) {
 
             })
         }
-        const createdDriver = await driver.create({
-            name, password, vehicleType, mobileNumber, city, state, license, photo, aadharCard
-        })
+        const createdDriver = await driver.findOneAndUpdate(
+            { mobileNumber },
+            { name, password, vehicleType, city, state, license, photo, aadharCard },
+            { new: true, upsert: true, setDefaultsOnInsert: true }
+        );
 
         const updatedUser = await user.findByIdAndUpdate(req.data._id, { $push: { drivers: createdDriver } }, { new: true })
         // const smsResponse = await sendSms(createdDriver.mobileNumber, `Dear ${createdDriver.name}, Aapko ${updatedUser.companyName} ke through Tourist Junction Driver App me register kiya gaya hai. Aapke Login Details: User ID: ${createdDriver.mobileNumber} Password: ${password} Ab aap kya kar sakte hain? 1. Trip Details Access Karein: Aap apni sambandhit agency ke saari trips ke details dekh sakte hain. 2. Trip Management: Har trip ka hisaab rakhein aur uske status ko update karein. 3. Real-Time Updates: Aapko agency ke taraf se mile sabhi updates ka access milega. Login Kaise Karein? 1. Tourist Junction Driver App download karein https://play.google.com/store/apps/details?id=com.touristsjunctions.travel. 2. Apne user ID aur password ka use karke login karein. Ab Apna kaam shuru karein! Aapka, Team Tourist Junction`, process.env.DLT_DRIVER_CREATION_TEMPLATE_ID)
