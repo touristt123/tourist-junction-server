@@ -2,9 +2,8 @@ const mongoose = require("mongoose")
 
 const tourRequestSchema = mongoose.Schema({
     customer: {
-        type: mongoose.Types.ObjectId,
-        ref: "user",
-        required: true
+        userName: String,
+        mobileNumber: String
     },
     // dateOfJourney: {
     //     type: Date,

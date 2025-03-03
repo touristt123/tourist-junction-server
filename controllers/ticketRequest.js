@@ -5,7 +5,7 @@ const { sendSms } = require("../utils/sms")
 
 async function handleCreateTicketRequest(req, res) {
     try {
-        const { dateOfJourney, numberOfPeople, passengerGender } = req.body
+        const { dateOfJourney, numberOfPeople, passengerGender, customer } = req.body
         const { routeId } = req.query
 
         if (!dateOfJourney || !numberOfPeople || !passengerGender) {
@@ -21,7 +21,6 @@ async function handleCreateTicketRequest(req, res) {
                 message: "Provide the Route ID to request ticket"
             })
         }
-        const foundCustomer = await user.findById(req.data._id)
         const foundRoute = await busRoute.findById(routeId).populate("vehicle")
 
         if (!foundRoute) {
@@ -31,12 +30,12 @@ async function handleCreateTicketRequest(req, res) {
             })
         }
 
-        const createdTicketRequest = await ticketRequest.create({ dateOfJourney, numberOfPeople, passengerGender, customer: foundCustomer, route: foundRoute })
+        const createdTicketRequest = await ticketRequest.create({ dateOfJourney, numberOfPeople, passengerGender, customer, route: foundRoute })
         const foundAgency = await user.findOne({ busRoutes: routeId })
         foundAgency.ticketRequests.push(createdTicketRequest)
         await foundAgency.save()
 
-        const smsResponse = await sendSms(foundAgency.mobileNumber, `"Dear ${foundAgency.userName}, You have received a ticket booking interest from the customer. Details are as follows: Customer Name: ${foundCustomer?.userName} Contact Number: ${foundCustomer?.mobileNumber} Booking Date: ${dateOfJourney} Seats: ${numberOfPeople} Vehicle: ${foundRoute?.vehicle?.number} Route: ${foundRoute?.departurePlace} to ${foundRoute?.destinationPlace} Departure Time: ${foundRoute?.departureTime} Please review the request and proceed with the booking process. Thank you!" Tourist Junction Team`, process.env.DLT_TICKET_REQUEST_TEMPLATE_ID)
+        const smsResponse = await sendSms(foundAgency.mobileNumber, `"Dear ${foundAgency.userName}, You have received a ticket booking interest from the customer. Details are as follows: Customer Name: ${customer?.userName} Contact Number: ${customer?.mobileNumber} Booking Date: ${dateOfJourney} Seats: ${numberOfPeople} Vehicle: ${foundRoute?.vehicle?.number} Route: ${foundRoute?.departurePlace} to ${foundRoute?.destinationPlace} Departure Time: ${foundRoute?.departureTime} Please review the request and proceed with the booking process. Thank you!" Tourist Junction Team`, process.env.DLT_TICKET_REQUEST_TEMPLATE_ID)
 
         return res.status(201).json({
             success: true,

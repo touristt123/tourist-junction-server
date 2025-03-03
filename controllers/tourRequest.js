@@ -5,7 +5,7 @@ const { sendSms } = require("../utils/sms")
 
 async function handleCreateTourRequest(req, res) {
     try {
-        const { numberOfPeople, passengerGender } = req.body
+        const { numberOfPeople, passengerGender, customer } = req.body
         const { tourId } = req.query
 
         if (!numberOfPeople || !passengerGender) {
@@ -21,7 +21,6 @@ async function handleCreateTourRequest(req, res) {
                 message: "Provide the Route ID to request tour"
             })
         }
-        const foundCustomer = await user.findById(req.data._id)
         const foundTour = await tour.findById(tourId)
 
         if (!foundTour) {
@@ -31,7 +30,7 @@ async function handleCreateTourRequest(req, res) {
             })
         }
 
-        const createdTourRequest = await tourRequest.create({ numberOfPeople, passengerGender, customer: foundCustomer, tour: foundTour })
+        const createdTourRequest = await tourRequest.create({ numberOfPeople, passengerGender, customer, tour: foundTour })
         const foundAgency = await user.findOne({ tours: tourId })
         if (!foundAgency) {
             return res.status(400).json({
@@ -42,7 +41,7 @@ async function handleCreateTourRequest(req, res) {
         foundAgency.tourRequests.push(createdTourRequest)
         await foundAgency.save()
 
-        const smsResponse = await sendSms(foundAgency.mobileNumber, `"Dear ${foundAgency?.mobileNumber}, You have received a tour inquiry from the customer. Details are as follows: Customer Name: ${foundCustomer.userName} Contact Number: ${foundCustomer?.mobileNumber} City: ${foundTour?.location} Selected Tour: ${foundTour?.name} Please contact the customer to assist them further with their inquiry. Thank you!" Tourist Junction Team`, process.env.DLT_TOUR_REQUEST_TEMPLATE_ID)
+        const smsResponse = await sendSms(foundAgency.mobileNumber, `"Dear ${foundAgency?.mobileNumber}, You have received a tour inquiry from the customer. Details are as follows: Customer Name: ${customer.userName} Contact Number: ${customer?.mobileNumber} City: ${foundTour?.location} Selected Tour: ${foundTour?.name} Please contact the customer to assist them further with their inquiry. Thank you!" Tourist Junction Team`, process.env.DLT_TOUR_REQUEST_TEMPLATE_ID)
 
         return res.status(201).json({
             success: true,
