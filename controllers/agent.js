@@ -14,7 +14,7 @@ async function handleGetAllAgents(req, res) {
     try {
         if (req.data.role === "AGENCY" || "MANAGER" || "OFFICE-BOY") {
             const foundUser = await user.findById(req.data._id).populate({
-                path: "agents",
+                path: "agent",
                 options: { sort: { createdAt: -1 } }
             })
 
