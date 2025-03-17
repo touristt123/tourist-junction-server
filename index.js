@@ -22,6 +22,7 @@ const busRouteRoute = require("./routes/busRoute")
 const tourRoute = require("./routes/tour")
 const ticketRequestRoute = require("./routes/ticketRequest")
 const tourRequestRoute = require("./routes/tourRequest")
+const agentRoute = require("./routes/agent")
 
 const { handleGetUserByAuthToken, handleAuthorizeUserByRole } = require("./middlewares/auth")
 const { connectToMongo } = require("./connections")
@@ -73,6 +74,7 @@ app.use("/api/packageBooking", packageBookingRoute)
 app.use("/api/service", serviceRoute);
 app.use("/api/subscription", subscriptionRoute);
 app.use("/api/emptyVehicle", emptyVehicleRoute);
+app.use("/api/agent", agentRoute)
 
 app.use("/api/busRoute", busRouteRoute);
 app.use("/api/tour", tourRoute)

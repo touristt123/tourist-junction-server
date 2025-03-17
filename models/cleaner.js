@@ -29,13 +29,7 @@ const cleanerSchema = mongoose.Schema({
         type: String
     }
 
-
-
-
 }, { timestamps: true })
-
-
-
 
 const cleaner = mongoose.model("cleaner", cleanerSchema)
 module.exports = cleaner

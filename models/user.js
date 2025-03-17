@@ -74,6 +74,9 @@ const userSchema = mongoose.Schema({
     emptyVehicles: {
         type: [{ type: mongoose.Types.ObjectId, ref: "emptyVehicle" }]
     },
+    agent: {
+        type: { type: mongoose.Types.ObjectId, ref: "service" },
+    },
     isVerified: {
         type: Boolean,
     },
