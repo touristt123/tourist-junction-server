@@ -1,5 +1,5 @@
 const agent = require("../models/agent");
-const user = require("../models/user")
+const { user } = require("../models/user")
 
 async function handleGetAllAvailableAgents(req, res) {
     try {
@@ -59,6 +59,10 @@ async function handleCreateAgent(req, res) {
         }
 
         const { name, city, state, ticketsAvailable, otherServices, caption, mobileNumbers, officeAddress, coverPhotos, profilePhoto } = req.body
+        // console.log({
+        //     name, city, state, ticketsAvailable, otherServices, caption, mobileNumbers, officeAddress, coverPhotos, profilePhoto
+        // });
+
         if (!name || !city || !state || !ticketsAvailable || !otherServices || !caption || !mobileNumbers || !officeAddress || !coverPhotos || !profilePhoto) {
             return res.status(400).json({
                 success: false,
@@ -70,8 +74,13 @@ async function handleCreateAgent(req, res) {
             name, city, state, ticketsAvailable, otherServices, caption, mobileNumbers, officeAddress, coverPhotos, profilePhoto
         })
 
+        // console.log({ token: req.data._id });
+
         const foundUser = await user.findById(req.data._id)
-        foundUser.agent = createdAgent
+        foundUser.agent = createdAgent._id
+        console.log({founduser: foundUser.agent});
+        
+        await foundUser.save()
 
         res.status(201).json({
             success: false,
@@ -79,7 +88,7 @@ async function handleCreateAgent(req, res) {
         })
 
     } catch (error) {
-        res.status(500).json({ success: false, message: "Internal server error" });
+        res.status(500).json({ success: false, message: error.message || "Internal server error" });
     }
 }
 
