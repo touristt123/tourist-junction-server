@@ -18,15 +18,15 @@ async function handleGetAllAgents(req, res) {
                 options: { sort: { createdAt: -1 } }
             })
 
-            if (!foundUser.agent) {
-                return res.status(400).json({
-                    success: false,
-                    message: "Could find agent"
-                })
-            }
+            // if (!foundUser.agent) {
+            //     return res.status(400).json({
+            //         success: false,
+            //         message: "Could find agent"
+            //     })
+            // }
             return res.status(200).json({
                 success: true,
-                data: foundUser.agent
+                data: foundUser.agent || {}
             })
         }
         else {
