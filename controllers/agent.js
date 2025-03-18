@@ -50,13 +50,26 @@ async function handleGetAllAgents(req, res) {
 
 async function handleCreateAgent(req, res) {
     try {
+        // if (req.files) {
+        //     for (const key of Object.keys(req.files)) {
+        //         if (req.files[key][0] && req.files[key][0].location) {
+        //             req.body[key] = req.files[key][0].location; // Add the URL to req.body
+        //         }
+        //     }
+        // }
+
         if (req.files) {
             for (const key of Object.keys(req.files)) {
-                if (req.files[key][0] && req.files[key][0].location) {
-                    req.body[key] = req.files[key][0].location; // Add the URL to req.body
+                if (req.files[key] && req.files[key].length > 0) {
+                    if (key === "profilePhoto") {
+                        req.body[key] = req.files[key][0].location; // Take only the first image as a string
+                    } else {
+                        req.body[key] = req.files[key].map(file => file.location); // Store other fields as arrays
+                    }
                 }
             }
         }
+
 
         const { name, city, state, ticketsAvailable, otherServices, caption, mobileNumbers, officeAddress, coverPhotos, profilePhoto } = req.body
         // console.log({
@@ -78,8 +91,8 @@ async function handleCreateAgent(req, res) {
 
         const foundUser = await user.findById(req.data._id)
         foundUser.agent = createdAgent._id
-        console.log({founduser: foundUser.agent});
-        
+        console.log({ founduser: foundUser.agent });
+
         await foundUser.save()
 
         res.status(201).json({
@@ -96,8 +109,12 @@ async function handleUpdateAgent(req, res) {
     try {
         if (req.files) {
             for (const key of Object.keys(req.files)) {
-                if (req.files[key][0] && req.files[key][0].location) {
-                    req.body[key] = req.files[key][0].location; // Add the URL to req.body
+                if (req.files[key] && req.files[key].length > 0) {
+                    if (key === "profilePhoto") {
+                        req.body[key] = req.files[key][0].location; // Take only the first image as a string
+                    } else {
+                        req.body[key] = req.files[key].map(file => file.location); // Store other fields as arrays
+                    }
                 }
             }
         }
