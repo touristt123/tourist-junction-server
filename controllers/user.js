@@ -145,7 +145,7 @@ async function handleVerifyOtp(req, res) {
         const currentDate = new Date();
         foundUser.isVerified = true;
         foundUser.verificationOtp = undefined;
-        foundUser.trialValidTill = new Date(currentDate.setDate(currentDate.getDate() + 3));
+        foundUser.trialValidTill = new Date(currentDate.setDate(currentDate.getDate() + 15));
 
         
         await foundUser.save()
