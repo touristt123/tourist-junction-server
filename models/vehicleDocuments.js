@@ -1,44 +1,30 @@
 const mongoose = require("mongoose")
 
+const documentSchema = mongoose.Schema({
+    document: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    expiry: {
+        type: Date
+    }
+}, { _id: false });
+
 const vehicleDocumentsSchema = mongoose.Schema({
     vehicleNumber: {
         type: String,
         required: true,
-        unique: true
+        unique: true,
+        trim: true,
     },
-   
-    RC: {
-        type: String,
-        required: true,
-        unique: true
-    },
-    Insurance: {
-        type: String,
-        required: true,
-        unique: true
-        
-    },
-    Permit: {
-        type: String,
-        required: true,
-        unique: true
-    },
-    Fitness: {
-        type: String,
-        required: true,
-        unique: true
-    },
-    Tax: {
-        type: String,
-        required: true,
-        unique: true
-    },
-    Puc: {
-        type: String,
-        required: true,
-        unique: true
-    },
+    RC: documentSchema,
+    Insurance: documentSchema,
+    Permit: documentSchema,
+    Fitness: documentSchema,
+    Tax: documentSchema,
+    PUC: documentSchema
 }, { timestamps: true })
 
 const vehicleDocuments = mongoose.model("vehicleDocuments", vehicleDocumentsSchema)
-module.exports =vehicleDocuments
+module.exports = vehicleDocuments

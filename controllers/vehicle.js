@@ -1,5 +1,7 @@
+const { default: mongoose } = require("mongoose");
 const { user, customer } = require("../models/user");
 const { vehicle, truck, car, bus } = require("../models/vehicle");
+const vehicleDocuments = require("../models/vehicleDocuments");
 
 async function handleCreateVehicle(req, res) {
     try {
@@ -317,39 +319,54 @@ async function handleUpdateVehicle(req, res) {
 
 async function handleAddDocuments(req, res) {
     try {
+        const { vehicleId } = req.query;
+        if (!vehicleId || !mongoose.Types.ObjectId.isValid(vehicleId)) {
+            return res.status(400).json({
+                success: false,
+                message: "Provide a valid vehicle ID to update"
+            });
+        }
+
+        const updateFields = {};
         if (req.files) {
             for (const key of Object.keys(req.files)) {
                 if (req.files[key][0] && req.files[key][0].location) {
-                    req.body[key] = req.files[key][0].location; // Add the URL to req.body
+                    updateFields[key] = { document: req.files[key][0].location, expiry: req.body[`${key}_expiry`] || null };
                 }
             }
         }
-        const { RC, permit, insurance, fitness, tax, PUC } = req.body
-        const { vehicleId } = req.query
-        if (!vehicleId) {
+
+        if (Object.keys(updateFields).length === 0) {
             return res.status(400).json({
                 success: false,
-                message: "Provide the ID of vehicle to update"
-            })
-        }
-        if (!RC || !insurance || !PUC) {
-            return res.status(400).json({
-                success: false,
-                message: "Provide all the documents of vehicle"
-            })
+                message: "No documents uploaded"
+            });
         }
 
-        const updatedVehicle = await vehicle.findByIdAndUpdate(vehicleId, { RC, permit, insurance, fitness, tax, PUC }, { new: true })
+        // Update only the provided fields
+        const updatedVehicle = await vehicle.findByIdAndUpdate(
+            vehicleId,
+            { $set: updateFields },
+            { new: true, runValidators: true }
+        );
+
+        if (!updatedVehicle) {
+            return res.status(404).json({
+                success: false,
+                message: "Vehicle not found"
+            });
+        }
+
         return res.status(200).json({
             success: true,
-            message: "Vehicle updated",
+            message: "Vehicle documents updated successfully",
             data: updatedVehicle
-        })
+        });
     } catch (error) {
         return res.status(500).json({
             success: false,
             message: error.message
-        })
+        });
     }
 }
 

@@ -1,5 +1,16 @@
 const mongoose = require("mongoose")
 
+const documentSchema = mongoose.Schema({
+    document: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    expiry: {
+        type: Date
+    }
+}, { _id: false });
+
 const vehicleSchema = mongoose.Schema({
 
     user: {
@@ -50,24 +61,12 @@ const vehicleSchema = mongoose.Schema({
         type: String,
         enum: ["CAR", "TRUCK", "BUS", "TAMPO"]
     },
-    RC: {
-        type: String
-    },
-    insurance: {
-        type: String
-    },
-    permit: {
-        type: String
-    },
-    fitness: {
-        type: String
-    },
-    tax: {
-        type: String
-    },
-    PUC: {
-        type: String
-    },
+    RC: documentSchema,
+    Insurance: documentSchema,
+    Permit: documentSchema,
+    Fitness: documentSchema,
+    Tax: documentSchema,
+    PUC: documentSchema,
     services: {
         type: [{ type: mongoose.Types.ObjectId, ref: "service" }]
     }
