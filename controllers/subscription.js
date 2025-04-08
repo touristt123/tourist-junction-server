@@ -327,7 +327,8 @@ async function handleRenew(req, res) {
                 await foundSubscription.save();
 
                 // Optionally, update the user's `isSubscriptionValid` field
-                await user.findByIdAndUpdate(foundSubscription.userId, { isSubscriptionValid: true });
+                const foundAgency = await user.findByIdAndUpdate(foundSubscription.userId, { isSubscriptionValid: true });
+                await handleActivateBusRoutes(foundAgency.busRoutes)
             }
         }
 
@@ -361,6 +362,15 @@ async function handleFailure(req, res) {
         console.error("Webhook Error:", error);
         res.status(500).json({ success: false, message: "Internal Server Error" });
     }
+}
+
+async function handleActivateBusRoutes(routeIds) {
+    if (routeIds.length < 1) {
+        return;
+    }
+    routeIds.map(async (id) => {
+        await busRoute.findByIdAndUpdate(id, { isActive: true })
+    })
 }
 
 module.exports = {
