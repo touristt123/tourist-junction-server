@@ -23,6 +23,7 @@ const tourRoute = require("./routes/tour")
 const ticketRequestRoute = require("./routes/ticketRequest")
 const tourRequestRoute = require("./routes/tourRequest")
 const agentRoute = require("./routes/agent")
+const smsRoute = require("./routes/sms")
 
 const { handleGetUserByAuthToken, handleAuthorizeUserByRole } = require("./middlewares/auth")
 const { connectToMongo } = require("./connections")
@@ -80,6 +81,7 @@ app.use("/api/busRoute", busRouteRoute);
 app.use("/api/tour", tourRoute)
 app.use("/api/ticketRequest", ticketRequestRoute)
 app.use("/api/tourRequest", tourRequestRoute)
+app.use("/api/sms", smsRoute)
 
 
 app.listen(PORT, () => {

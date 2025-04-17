@@ -8,6 +8,10 @@ const documentSchema = mongoose.Schema({
     },
     expiry: {
         type: Date
+    },
+    isNotified: {
+        type: Boolean,
+        default: false
     }
 }, { _id: false });
 
